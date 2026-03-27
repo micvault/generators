@@ -210,11 +210,17 @@
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" placeholder="e.g., MyPassword0123" value="">
+                <div style="display: flex; gap: 8px;">
+                    <input type="password" id="password" placeholder="e.g., MyPassword0123" value="" style="flex: 1;">
+                    <button type="button" onclick="togglePasswordVisibility()" style="width: auto; padding: 11px 16px;">Show</button>
+                </div>
             </div>
             <div class="form-group">
                 <label for="downloadUrl">Download URL (optional)</label>
-                <input type="text" id="downloadUrl" placeholder="Full artifact download URL" value="">
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="downloadUrl" placeholder="Full artifact download URL" value="" style="flex: 1;">
+                    <button onclick="checkLatestArtifacts()" style="width: auto; padding: 11px 16px;">Check Latest</button>
+                </div>
             </div>
             <button onclick="generateCommands()">Generate Commands</button>
         </div>
@@ -254,7 +260,6 @@
                 },
                 {
                     cmd: downloadUrl ? `wget ${downloadUrl} -O fx.tar.xz` : 'wget https://runtime.fivem.net/artifacts/fivem/build/proot_linux/master/[VERSION]/fx.tar.xz',
-                    note: 'Download latest artifacts - check' + (downloadUrl ? ' (custom URL used)' : ' latest linux artifacts')
                 },
                 {
                     cmd: `tar xf fx.tar.xz`,
@@ -386,6 +391,23 @@
         document.getElementById('password').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') generateCommands();
         });
+
+        function checkLatestArtifacts() {
+            window.open('https://runtime.fivem.net/artifacts/fivem/build_proot_linux/master/', '_blank');
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const button = event.target;
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                button.textContent = 'Hide';
+            } else {
+                passwordInput.type = 'password';
+                button.textContent = 'Show';
+            }
+        }
     </script>
 </body>
 </html>
