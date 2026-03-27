@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux Server Setup - Command Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #0f0f0f;
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .section {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            border: 1px solid #2a2a2a;
+        }
+
+        h1 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #b0b0b0;
+            font-weight: 500;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #2a2a2a;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #0f0f0f;
+            color: #e0e0e0;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #505050;
+            background: #1a1a1a;
+        }
+
+        input::placeholder {
+            color: #555;
+        }
+
+        button {
+            width: 100%;
+            padding: 11px;
+            background: #262626;
+            color: #ffffff;
+            border: 1px solid #3a3a3a;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #333333;
+            border-color: #505050;
+        }
+
+        button:active {
+            background: #1a1a1a;
+        }
+
+        .commands-list {
+            display: none;
+        }
+
+        .commands-list.show {
+            display: block;
+        }
+
+        .command-item {
+            background: #252525;
+            border: 1px solid #333333;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            display: block;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .command-item:hover {
+            background-color: #2a2a2a;
+            border-color: #404040;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .command-item.copied {
+            background: rgba(102, 187, 106, 0.1);
+            border-color: #66bb6a;
+        }
+
+        .command-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0;
+            border-bottom: none;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .command-number {
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .copy-status {
+            font-size: 11px;
+            color: #66bb6a;
+            font-weight: 600;
+            min-width: 60px;
+            text-align: right;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .command-item.copied .copy-status {
+            opacity: 1;
+        }
+
+        .command-body {
+            padding: 0;
+        }
+
+        .command-content {
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 13px;
+            color: #d0d0d0;
+            word-break: break-word;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            margin-bottom: 8px;
+            background: #181818;
+            padding: 10px 12px;
+            border-radius: 6px;
+            border: 1px solid #333333;
+        }
+
+        .note {
+            color: #888888;
+            font-size: 12px;
+            margin-top: 0;
+            font-style: italic;
+            font-family: sans-serif;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Input Form -->
+        <div class="section">
+            <h1>Server Configuration</h1>
+            <div class="form-group">
+                <label for="serverName">Server Name</label>
+                <input type="text" id="serverName" placeholder="e.g., myserver" value="">
+            </div>
+            <div class="form-group">
+                <label for="folderName">Folder Name</label>
+                <input type="text" id="folderName" placeholder="e.g., ServerFolderName" value="">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="e.g., MyPassword0123" value="">
+            </div>
+            <div class="form-group">
+                <label for="downloadUrl">Download URL (optional)</label>
+                <input type="text" id="downloadUrl" placeholder="Full artifact download URL" value="">
+            </div>
+            <button onclick="generateCommands()">Generate Commands</button>
+        </div>
+
+        <!-- Output Commands -->
+        <div class="section">
+            <h1>Setting-up Linux Server</h1>
+            <div id="commandsContainer" class="commands-list">
+                <!-- Commands will be generated here -->
+            </div>
+            <div id="emptyState" style="color: #555; text-align: center; padding: 40px 20px;">
+                Fill in the form and click "Generate Commands"
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generateCommands() {
+            const serverName = document.getElementById('serverName').value.trim();
+            const folderName = document.getElementById('folderName').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const downloadUrl = document.getElementById('downloadUrl').value.trim();
+
+            if (!serverName || !folderName || !password) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const commands = [
+                {
+                    cmd: `mkdir ${folderName}`,
+                    note: 'Create server folder'
+                },
+                {
+                    cmd: `cd ${folderName}`,
+                    note: 'Navigate into server folder'
+                },
+                {
+                    cmd: downloadUrl ? `wget ${downloadUrl} -O fx.tar.xz` : 'wget https://runtime.fivem.net/artifacts/fivem/build/proot_linux/master/[VERSION]/fx.tar.xz',
+                    note: 'Download latest artifacts - check' + (downloadUrl ? ' (custom URL used)' : ' latest linux artifacts')
+                },
+                {
+                    cmd: `tar xf fx.tar.xz`,
+                    note: 'Extract archive'
+                },
+                {
+                    cmd: `rm fx.tar.xz`,
+                    note: 'Remove archive after extraction'
+                },
+                {
+                    cmd: `sudo apt-get install mariadb-server`,
+                    note: 'Install MariaDB'
+                },
+                {
+                    cmd: `mysql_secure_installation`,
+                    note: 'Secure MySQL - Answer the following questions using Y/N*'
+                },
+                {
+                    cmd: `nano /etc/mysql/mariadb.conf.d/50-server.cnf`,
+                    note: 'Edit server.cnf then set bind address to 0.0.0.0 then save using CTRL + X'
+                },
+                {
+                    cmd: `mysql`,
+                    note: 'Connect to MySQL',
+                    parent: 8,
+                    subStep: 0
+                },
+                {
+                    cmd: `CREATE USER '${serverName}'@'%' IDENTIFIED BY '${password}';`,
+                    note: 'Create MySQL user',
+                    parent: 8,
+                    subStep: 1
+                },
+                {
+                    cmd: `GRANT ALL PRIVILEGES ON . TO '${serverName}'@'%';`,
+                    note: 'Grant all privileges',
+                    parent: 8,
+                    subStep: 2
+                },
+                {
+                    cmd: `FLUSH PRIVILEGES;`,
+                    note: 'Flush privileges to apply changes',
+                    parent: 8,
+                    subStep: 3
+                },
+                {
+                    cmd: `EXIT;`,
+                    note: 'Exit MySQL',
+                    parent: 8,
+                    subStep: 4
+                },
+                {
+                    cmd: `sudo systemctl restart mysql`,
+                    note: 'Restart MySQL service'
+                },
+                {
+                    cmd: `sudo apt-get install tmux`,
+                    note: 'Install tmux'
+                },
+                {
+                    cmd: `tmux`,
+                    note: 'Start tmux session'
+                },
+                {
+                    cmd: `./run.sh`,
+                    note: 'Run the server startup script'
+                }
+            ];
+
+            const container = document.getElementById('commandsContainer');
+            container.innerHTML = '';
+
+            let commandNumber = 0;
+
+            commands.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'command-item';
+
+                let displayNumber;
+                if (item.parent !== undefined) {
+                    displayNumber = `${item.parent}.${item.subStep}`;
+                    // Ensure commandNumber is at least parent number so next regular command is parent + 1
+                    if (commandNumber < item.parent) {
+                        commandNumber = item.parent;
+                    }
+                } else {
+                    commandNumber++;
+                    displayNumber = commandNumber;
+                }
+
+                div.innerHTML = `
+                    <div class="command-header">
+                        <span class="command-number">Step ${displayNumber}:</span>
+                        <span class="copy-status">✓ DONE</span>
+                    </div>
+                    <div class="command-body">
+                        <div class="command-content">${escapeHtml(item.cmd)}</div>
+                        ${item.note ? `<div class="note">${escapeHtml(item.note)}</div>` : ''}
+                    </div>
+                `;
+                div.addEventListener('click', (e) => copyToClipboard(e, div));
+                container.appendChild(div);
+            });
+
+            document.getElementById('commandsContainer').classList.add('show');
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        function copyToClipboard(event, commandDiv) {
+            const commandText = commandDiv.querySelector('.command-content').textContent;
+
+            navigator.clipboard.writeText(commandText).then(() => {
+                commandDiv.classList.add('copied');
+            });
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Allow Enter key to generate commands
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') generateCommands();
+        });
+    </script>
+</body>
+</html>
